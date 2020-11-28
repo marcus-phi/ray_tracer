@@ -31,6 +31,22 @@ impl Vec3 {
     pub fn unit(self) -> Vec3 {
         self / self.len()
     }
+
+    pub fn min(self, v: Vec3) -> Vec3 {
+        Vec3::new(
+            f64::min(self.x, v.x),
+            f64::min(self.y, v.y),
+            f64::min(self.z, v.z),
+        )
+    }
+
+    pub fn max(self, v: Vec3) -> Vec3 {
+        Vec3::new(
+            f64::max(self.x, v.x),
+            f64::max(self.y, v.y),
+            f64::max(self.z, v.z),
+        )
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
@@ -145,4 +161,24 @@ fn vec3_unit() {
 
     assert_eq!(1.0, u.len());
     assert_eq!(0.0, u.cross(v).len());
+}
+
+#[test]
+fn vec3_min_vec3() {
+    let v1 = Vec3::new(1.0, 3.0, 5.0);
+    let v2 = Vec3::new(2.0, 2.5, 4.0);
+    let min = v1.min(v2);
+    assert_eq!(1.0, min.x);
+    assert_eq!(2.5, min.y);
+    assert_eq!(4.0, min.z);
+}
+
+#[test]
+fn vec3_max_vec3() {
+    let v1 = Vec3::new(1.0, 3.0, 5.0);
+    let v2 = Vec3::new(2.0, 2.5, 4.0);
+    let max = v1.max(v2);
+    assert_eq!(2.0, max.x);
+    assert_eq!(3.0, max.y);
+    assert_eq!(5.0, max.z);
 }
