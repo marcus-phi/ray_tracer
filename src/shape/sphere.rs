@@ -1,29 +1,35 @@
 use crate::hit::*;
+use crate::material::*;
 use crate::math::*;
 
-#[derive(Debug)]
-pub struct Sphere {
+pub struct Sphere<'a> {
     pub center: Vec3,
     pub radius: f64,
+    pub mat: &'a dyn Material,
 }
 
-impl Sphere {
-    pub fn new(center: Vec3, radius: f64) -> Sphere {
-        Sphere { center, radius }
+impl<'a> Sphere<'a> {
+    pub fn new(center: Vec3, radius: f64, mat: &dyn Material) -> Sphere {
+        Sphere {
+            center,
+            radius,
+            mat,
+        }
     }
 
-    fn get_hit_point(&self, r: &Ray, t: f64) -> HitPoint {
+    fn get_hit_point(&self, r: Ray, t: f64) -> HitPoint {
         let p = r.at(t);
         HitPoint {
             t,
             p,
             n: (p - self.center) / self.radius,
+            mat: self.mat,
         }
     }
 }
 
-impl Hitable for Sphere {
-    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitPoint> {
+impl<'a> Hitable for Sphere<'a> {
+    fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitPoint> {
         let oc = r.origin - self.center;
         let a = r.direction.dot(r.direction);
         let b = 2.0 * oc.dot(r.direction);
@@ -43,16 +49,16 @@ impl Hitable for Sphere {
         None
     }
 
-    fn bbox(&self) -> AABB {
+    fn bbox(&self) -> Option<AABB> {
         let r = Vec3::new(self.radius, self.radius, self.radius);
-        AABB::new(self.center - r, self.center + r)
+        Some(AABB::new(self.center - r, self.center + r))
     }
 }
 
 #[test]
 fn sphere_bbox() {
-    let s = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 1.0);
-    let bb = s.bbox();
+    let s = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 1.0, &DummyMaterial {});
+    let bb = s.bbox().unwrap();
 
     assert_eq!(-1.0, bb.min.x);
     assert_eq!(-1.0, bb.min.y);
@@ -64,14 +70,14 @@ fn sphere_bbox() {
 
 #[test]
 fn shere_hit() {
-    let s = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 2.0);
+    let s = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 2.0, &DummyMaterial {});
     let r1 = Ray::new(Vec3::new(-10.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0));
     let r2 = Ray::new(Vec3::new(10.0, 0.0, 0.0), Vec3::new(-1.0, 0.0, 0.0));
     let r3 = Ray::new(Vec3::new(10.0, 10.0, 0.0), Vec3::new(-1.0, 0.0, 0.0));
 
-    let p1 = s.hit(&r1, f64::MIN, f64::MAX);
-    let p2 = s.hit(&r2, f64::MIN, f64::MAX);
-    let p3 = s.hit(&r3, f64::MIN, f64::MAX);
+    let p1 = s.hit(r1, f64::MIN, f64::MAX);
+    let p2 = s.hit(r2, f64::MIN, f64::MAX);
+    let p3 = s.hit(r3, f64::MIN, f64::MAX);
 
     match p1 {
         Some(p) => {

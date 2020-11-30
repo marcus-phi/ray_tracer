@@ -27,3 +27,11 @@ impl<'a> Material for Lambertian<'a> {
         ))
     }
 }
+
+pub struct DummyMaterial {}
+
+impl Material for DummyMaterial {
+    fn scatter(&self, _: Ray, _: HitPoint) -> Option<Scatter> {
+        None
+    }
+}
