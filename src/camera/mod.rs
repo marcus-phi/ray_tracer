@@ -62,7 +62,7 @@ impl Camera for PerspectiveCamera {
         let offset = self.u * rd.x + self.v * rd.y;
         Ray::new(
             self.origin + offset,
-            self.lower_left_corner + s * self.horizontal + t * self.vertical,
+            self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
         )
     }
 }

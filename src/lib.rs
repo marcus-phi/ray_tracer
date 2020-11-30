@@ -27,8 +27,8 @@ pub fn render(world: &dyn Hitable, camera: &dyn Camera, image_dim: (u32, u32), n
 
             col = (col / (n_samples as f64)).gamma();
             let ir = (col.r * 255.99).floor() as u32;
-            let ig = (col.r * 255.99).floor() as u32;
-            let ib = (col.r * 255.99).floor() as u32;
+            let ig = (col.g * 255.99).floor() as u32;
+            let ib = (col.b * 255.99).floor() as u32;
             println!("{} {} {}", ir, ig, ib);
         }
     }
