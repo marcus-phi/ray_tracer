@@ -11,6 +11,14 @@ impl Color3 {
     pub fn new(r: f64, g: f64, b: f64) -> Color3 {
         Color3 { r, g, b }
     }
+
+    pub fn gamma(self) -> Color3 {
+        Color3 {
+            r: self.r.sqrt(),
+            g: self.g.sqrt(),
+            b: self.b.sqrt(),
+        }
+    }
 }
 
 impl ops::Add<Color3> for Color3 {
@@ -42,6 +50,13 @@ impl ops::Mul<Color3> for f64 {
 
     fn mul(self, c: Color3) -> Color3 {
         Color3::new(self * c.r, self * c.g, self * c.b)
+    }
+}
+impl ops::Mul<Color3> for Color3 {
+    type Output = Color3;
+
+    fn mul(self, c: Color3) -> Color3 {
+        Color3::new(self.r * c.r, self.g * c.g, self.b * c.b)
     }
 }
 
@@ -86,9 +101,25 @@ fn scalar_mul_color3() {
 }
 
 #[test]
+fn color3_mul_color3() {
+    let c = Color3::new(1.0, 2.0, 3.0) * Color3::new(2.0, 3.0, 4.0);
+    assert_eq!(2.0, c.r);
+    assert_eq!(6.0, c.g);
+    assert_eq!(12.0, c.b);
+}
+
+#[test]
 fn color3_div_scalar() {
     let c = Color3::new(2.0, 4.0, 6.0) / 2.0;
     assert_eq!(1.0, c.r);
     assert_eq!(2.0, c.g);
     assert_eq!(3.0, c.b);
+}
+
+#[test]
+fn color3_gamma() {
+    let c = Color3::new(4.0, 9.0, 16.0).gamma();
+    assert_eq!(2.0, c.r);
+    assert_eq!(3.0, c.g);
+    assert_eq!(4.0, c.b);
 }
