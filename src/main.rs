@@ -1,3 +1,4 @@
+use rand::prelude::*;
 use ray_tracer::camera::PerspectiveCamera;
 use ray_tracer::hit::Hitable;
 use ray_tracer::hit::HitableList;
@@ -9,7 +10,7 @@ use ray_tracer::shape::Sphere;
 use ray_tracer::texture::ConstantTexture;
 
 fn main() {
-    let image_dim = (360, 240);
+    let image_dim = (720, 480);
 
     let world = random_world();
 
@@ -23,7 +24,7 @@ fn main() {
         10.0,
     );
 
-    render(world, Box::new(camera), image_dim, 16);
+    render(world, Box::new(camera), image_dim, 128);
 }
 
 fn random_world() -> Box<dyn Hitable> {
@@ -44,6 +45,23 @@ fn random_world() -> Box<dyn Hitable> {
     world.push(Box::new(ground));
     world.push(Box::new(red));
     world.push(Box::new(green));
+
+    let mut rng = rand::thread_rng();
+    for a in -11..11 {
+        for b in -11..11 {
+            let center = Vec3::new(
+                (a as f64) + 0.9 * rng.gen::<f64>(),
+                0.3,
+                (b as f64) + 0.9 * rng.gen::<f64>(),
+            );
+            if (center - Vec3::new(4.0, 0.3, 0.0)).len() > 0.9 {
+                let tex = ConstantTexture::new(Color3::new(rng.gen(), rng.gen(), rng.gen()));
+                let mat = Lambertian::new(Box::new(tex));
+                let sphere = Sphere::new(center, 0.3, Box::new(mat));
+                world.push(Box::new(sphere));
+            }
+        }
+    }
 
     Box::new(world)
 }
