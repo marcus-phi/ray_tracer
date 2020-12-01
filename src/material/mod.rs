@@ -8,17 +8,17 @@ pub trait Material {
     fn scatter(&self, r: Ray, hp: HitPoint) -> Option<Scatter>;
 }
 
-pub struct Lambertian<'a> {
-    pub albedo: &'a dyn Texture,
+pub struct Lambertian {
+    pub albedo: Box<dyn Texture>,
 }
 
-impl<'a> Lambertian<'a> {
-    pub fn new(albedo: &'a dyn Texture) -> Lambertian<'a> {
+impl Lambertian {
+    pub fn new(albedo: Box<dyn Texture>) -> Lambertian {
         Lambertian { albedo }
     }
 }
 
-impl<'a> Material for Lambertian<'a> {
+impl Material for Lambertian {
     fn scatter(&self, _: Ray, hp: HitPoint) -> Option<Scatter> {
         let target = hp.p + hp.n + math::random_in_unit_sphere();
         Some(Scatter::new(

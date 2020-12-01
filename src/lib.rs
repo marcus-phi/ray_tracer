@@ -10,7 +10,12 @@ use hit::*;
 use math::*;
 use rand::prelude::*;
 
-pub fn render(world: &dyn Hitable, camera: &dyn Camera, image_dim: (u32, u32), n_samples: u32) {
+pub fn render(
+    world: Box<dyn Hitable>,
+    camera: Box<dyn Camera>,
+    image_dim: (u32, u32),
+    n_samples: u32,
+) {
     let mut rng = rand::thread_rng();
 
     println!("P3\n{} {}\n255", image_dim.0, image_dim.1);
@@ -22,7 +27,7 @@ pub fn render(world: &dyn Hitable, camera: &dyn Camera, image_dim: (u32, u32), n
                 let u: f64 = ((i as f64) + rng.gen::<f64>()) / (image_dim.0 as f64);
                 let v: f64 = ((j as f64) + rng.gen::<f64>()) / (image_dim.1 as f64);
                 let ray = camera.get_ray(u, v);
-                col = col + ray_hit_world(ray, world, 0);
+                col = col + ray_hit_world(ray, &world, 0);
             }
 
             col = (col / (n_samples as f64)).gamma();
@@ -34,7 +39,7 @@ pub fn render(world: &dyn Hitable, camera: &dyn Camera, image_dim: (u32, u32), n
     }
 }
 
-fn ray_hit_world(r: Ray, world: &dyn Hitable, depth: u32) -> Color3 {
+fn ray_hit_world(r: Ray, world: &Box<dyn Hitable>, depth: u32) -> Color3 {
     let hit_result = world.hit(r, 0.001, f64::MAX);
     match hit_result {
         Some(hp) => {

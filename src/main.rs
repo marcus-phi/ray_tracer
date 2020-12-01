@@ -1,4 +1,5 @@
 use ray_tracer::camera::PerspectiveCamera;
+use ray_tracer::hit::Hitable;
 use ray_tracer::hit::HitableList;
 use ray_tracer::material::Lambertian;
 use ray_tracer::math::Color3;
@@ -8,25 +9,9 @@ use ray_tracer::shape::Sphere;
 use ray_tracer::texture::ConstantTexture;
 
 fn main() {
-    let mut world = HitableList::new();
+    let image_dim = (360, 240);
 
-    let gray_tex = ConstantTexture::new(Color3::new(0.7, 0.7, 0.7));
-    let red_tex = ConstantTexture::new(Color3::new(1.0, 0.0, 0.0));
-    let green_tex = ConstantTexture::new(Color3::new(0.0, 1.0, 0.0));
-
-    let gray_mat = Lambertian::new(&gray_tex);
-    let red_mat = Lambertian::new(&red_tex);
-    let green_mat = Lambertian::new(&green_tex);
-
-    let ground = Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, &gray_mat);
-    let red = Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, &red_mat);
-    let green = Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, &green_mat);
-
-    world.push(&ground);
-    world.push(&red);
-    world.push(&green);
-
-    let image_dim = (720, 480);
+    let world = random_world();
 
     let camera = PerspectiveCamera::new(
         Vec3::new(13.0, 2.0, 3.0),
@@ -38,5 +23,27 @@ fn main() {
         10.0,
     );
 
-    render(&world, &camera, image_dim, 64);
+    render(world, Box::new(camera), image_dim, 16);
+}
+
+fn random_world() -> Box<dyn Hitable> {
+    let mut world = HitableList::new();
+
+    let gray_tex = ConstantTexture::new(Color3::new(0.7, 0.7, 0.7));
+    let red_tex = ConstantTexture::new(Color3::new(1.0, 0.0, 0.0));
+    let green_tex = ConstantTexture::new(Color3::new(0.0, 1.0, 0.0));
+
+    let gray_mat = Lambertian::new(Box::new(gray_tex));
+    let red_mat = Lambertian::new(Box::new(red_tex));
+    let green_mat = Lambertian::new(Box::new(green_tex));
+
+    let ground = Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, Box::new(gray_mat));
+    let red = Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, Box::new(red_mat));
+    let green = Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, Box::new(green_mat));
+
+    world.push(Box::new(ground));
+    world.push(Box::new(red));
+    world.push(Box::new(green));
+
+    Box::new(world)
 }

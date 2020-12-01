@@ -2,14 +2,14 @@ use crate::hit::*;
 use crate::material::*;
 use crate::math::*;
 
-pub struct Sphere<'a> {
+pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
-    pub mat: &'a dyn Material,
+    pub mat: Box<dyn Material>,
 }
 
-impl<'a> Sphere<'a> {
-    pub fn new(center: Vec3, radius: f64, mat: &dyn Material) -> Sphere {
+impl Sphere {
+    pub fn new(center: Vec3, radius: f64, mat: Box<dyn Material>) -> Sphere {
         Sphere {
             center,
             radius,
@@ -23,12 +23,12 @@ impl<'a> Sphere<'a> {
             t,
             p,
             n: (p - self.center) / self.radius,
-            mat: self.mat,
+            mat: &self.mat,
         }
     }
 }
 
-impl<'a> Hitable for Sphere<'a> {
+impl Hitable for Sphere {
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitPoint> {
         let oc = r.origin - self.center;
         let a = r.direction.dot(r.direction);
@@ -57,7 +57,7 @@ impl<'a> Hitable for Sphere<'a> {
 
 #[test]
 fn sphere_bbox() {
-    let s = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 1.0, &DummyMaterial {});
+    let s = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 1.0, Box::new(DummyMaterial {}));
     let bb = s.bbox().unwrap();
 
     assert_eq!(-1.0, bb.min.x);
@@ -70,7 +70,7 @@ fn sphere_bbox() {
 
 #[test]
 fn shere_hit() {
-    let s = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 2.0, &DummyMaterial {});
+    let s = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 2.0, Box::new(DummyMaterial {}));
     let r1 = Ray::new(Vec3::new(-10.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0));
     let r2 = Ray::new(Vec3::new(10.0, 0.0, 0.0), Vec3::new(-1.0, 0.0, 0.0));
     let r3 = Ray::new(Vec3::new(10.0, 10.0, 0.0), Vec3::new(-1.0, 0.0, 0.0));

@@ -7,7 +7,7 @@ pub struct HitPoint<'a> {
     pub t: f64,
     pub p: Vec3,
     pub n: Vec3,
-    pub mat: &'a dyn Material,
+    pub mat: &'a Box<dyn Material>,
 }
 
 pub trait Hitable {
@@ -15,21 +15,20 @@ pub trait Hitable {
     fn bbox(&self) -> Option<AABB>;
 }
 
-pub struct HitableList<'a> {
-    list: Vec<&'a dyn Hitable>,
+pub struct HitableList {
+    list: Vec<Box<dyn Hitable>>,
     bbox: Option<AABB>,
 }
 
-impl<'a> HitableList<'a> {
-    pub fn new() -> HitableList<'a> {
+impl HitableList {
+    pub fn new() -> HitableList {
         HitableList {
             list: Vec::new(),
             bbox: None,
         }
     }
 
-    pub fn push(&mut self, hitable: &'a dyn Hitable) {
-        self.list.push(hitable);
+    pub fn push(&mut self, hitable: Box<dyn Hitable>) {
         match hitable.bbox() {
             Some(b) => {
                 if self.bbox.is_none() {
@@ -40,10 +39,11 @@ impl<'a> HitableList<'a> {
             }
             _ => {}
         }
+        self.list.push(hitable);
     }
 }
 
-impl<'a> Hitable for HitableList<'a> {
+impl Hitable for HitableList {
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitPoint> {
         let mut closest = t_max;
         let mut result: Option<HitPoint> = None;
