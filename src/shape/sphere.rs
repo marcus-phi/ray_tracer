@@ -9,12 +9,12 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64, mat: Box<dyn Material>) -> Sphere {
-        Sphere {
+    pub fn new(center: Vec3, radius: f64, mat: Box<dyn Material>) -> Box<Sphere> {
+        Box::new(Sphere {
             center,
             radius,
             mat,
-        }
+        })
     }
 
     fn get_hit_point(&self, r: Ray, t: f64) -> HitPoint {
@@ -52,6 +52,14 @@ impl Hitable for Sphere {
     fn bbox(&self) -> Option<AABB> {
         let r = Vec3::new(self.radius, self.radius, self.radius);
         Some(AABB::new(self.center - r, self.center + r))
+    }
+}
+
+struct DummyMaterial {}
+
+impl Material for DummyMaterial {
+    fn scatter(&self, _: Ray, _: HitPoint) -> Option<Scatter> {
+        None
     }
 }
 
