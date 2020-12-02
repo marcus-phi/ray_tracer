@@ -29,25 +29,21 @@ fn main() {
 fn random_world() -> Box<dyn Hitable> {
     let mut world = HitableList::new();
 
-    let ground = Sphere::new(
+    world.push(Sphere::new(
         Vec3::new(0.0, -1000.0, 0.0),
         1000.0,
         Lambertian::new(ConstantTexture::new(Color3::new(0.7, 0.7, 0.7))),
-    );
-    let red = Sphere::new(
+    ));
+    world.push(Sphere::new(
         Vec3::new(0.0, 1.0, 0.0),
         1.0,
-        Lambertian::new(ConstantTexture::new(Color3::new(1.0, 0.0, 0.0))),
-    );
-    let green = Sphere::new(
+        Metal::new(Color3::new(0.7, 0.6, 0.5), 0.0),
+    ));
+    world.push(Sphere::new(
         Vec3::new(4.0, 1.0, 0.0),
         1.0,
-        Lambertian::new(ConstantTexture::new(Color3::new(0.0, 1.0, 0.0))),
-    );
-
-    world.push(ground);
-    world.push(red);
-    world.push(green);
+        Lambertian::new(ConstantTexture::new(Color3::new(1.0, 0.0, 0.0))),
+    ));
 
     let mut rng = rand::thread_rng();
     for a in -11..11 {
@@ -58,8 +54,23 @@ fn random_world() -> Box<dyn Hitable> {
                 (b as f64) + 0.9 * rng.gen::<f64>(),
             );
             if (center - Vec3::new(4.0, 0.3, 0.0)).len() > 0.9 {
-                let tex = ConstantTexture::new(Color3::new(rng.gen(), rng.gen(), rng.gen()));
-                let mat = Lambertian::new(tex);
+                let choose: f64 = rng.gen();
+                let mat: Box<dyn Material> = if choose < 0.8 {
+                    Lambertian::new(ConstantTexture::new(Color3::new(
+                        rng.gen(),
+                        rng.gen(),
+                        rng.gen(),
+                    )))
+                } else {
+                    Metal::new(
+                        Color3::new(
+                            0.5 * (1.0 + rng.gen::<f64>()),
+                            0.5 * (1.0 + rng.gen::<f64>()),
+                            0.5 * (1.0 + rng.gen::<f64>()),
+                        ),
+                        0.5 * rng.gen::<f64>(),
+                    )
+                };
                 let sphere = Sphere::new(center, 0.3, mat);
                 world.push(sphere);
             }

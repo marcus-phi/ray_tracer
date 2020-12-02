@@ -47,6 +47,10 @@ impl Vec3 {
             f64::max(self.z, v.z),
         )
     }
+
+    pub fn reflect(self, v: Vec3) -> Vec3 {
+        self - 2.0 * self.dot(v) * v
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
