@@ -40,7 +40,7 @@ pub fn render(
 }
 
 fn ray_hit_world(r: Ray, world: &Box<dyn Hitable>, depth: u32) -> Color3 {
-    if depth >= 20 {
+    if depth >= 50 {
         return Color3::new(0.0, 0.0, 0.0);
     }
 

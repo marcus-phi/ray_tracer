@@ -31,3 +31,9 @@ pub fn random_in_unit_disk() -> Vec3 {
         }
     }
 }
+
+pub fn schlick_approx(cosine: f64, refract_index: f64) -> f64 {
+    let r0 = (1.0 - refract_index) / (1.0 + refract_index);
+    let r = r0 * r0;
+    return r + (1.0 - r) * ((1.0 - cosine).powi(5));
+}

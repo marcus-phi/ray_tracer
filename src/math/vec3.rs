@@ -48,8 +48,19 @@ impl Vec3 {
         )
     }
 
-    pub fn reflect(self, v: Vec3) -> Vec3 {
-        self - 2.0 * self.dot(v) * v
+    pub fn reflect(self, n: Vec3) -> Vec3 {
+        self - 2.0 * self.dot(n) * n
+    }
+
+    pub fn refract(self, n: Vec3, refract_index: f64) -> Option<Vec3> {
+        let uv = self.unit();
+        let dt = uv.dot(n);
+        let d = 1.0 - refract_index * refract_index * (1.0 - dt * dt);
+        if d > 0.0 {
+            Some(refract_index * (uv - n * dt) - n * d.sqrt())
+        } else {
+            None
+        }
     }
 }
 

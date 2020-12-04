@@ -23,7 +23,7 @@ fn main() {
         10.0,
     );
 
-    render(world, Box::new(camera), image_dim, 64);
+    render(world, Box::new(camera), image_dim, 128);
 }
 
 fn random_world() -> Box<dyn Hitable> {
@@ -40,9 +40,14 @@ fn random_world() -> Box<dyn Hitable> {
         Metal::new(Color3::new(0.7, 0.6, 0.5), 0.0),
     ));
     world.push(Sphere::new(
+        Vec3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Lambertian::new(ConstantTexture::new(Color3::new(0.4, 0.2, 0.1))),
+    ));
+    world.push(Sphere::new(
         Vec3::new(4.0, 1.0, 0.0),
         1.0,
-        Lambertian::new(ConstantTexture::new(Color3::new(1.0, 0.0, 0.0))),
+        Dielectric::new(1.5),
     ));
 
     let mut rng = rand::thread_rng();
@@ -61,7 +66,7 @@ fn random_world() -> Box<dyn Hitable> {
                         rng.gen(),
                         rng.gen(),
                     )))
-                } else {
+                } else if choose < 0.95 {
                     Metal::new(
                         Color3::new(
                             0.5 * (1.0 + rng.gen::<f64>()),
@@ -70,6 +75,8 @@ fn random_world() -> Box<dyn Hitable> {
                         ),
                         0.5 * rng.gen::<f64>(),
                     )
+                } else {
+                    Dielectric::new(1.5)
                 };
                 let sphere = Sphere::new(center, 0.3, mat);
                 world.push(sphere);
